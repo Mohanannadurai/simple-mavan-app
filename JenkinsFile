@@ -1,39 +1,69 @@
 pipeline {
     agent any
+    
     environment {
-        DOCKER_HUB_USER = 'Mohanannadurai'
-        IMAGE_NAME = 'arithmetic-app'
-        DOCKER_CREDS = 'simple-maven-app' 
+        // Change these to your actual values
+        DOCKER_HUB_USER = 'mohanannadurai' 
+        IMAGE_NAME      = 'arithmetic-app'
+        // This is the 'ID' you set when adding credentials in Jenkins
+        DOCKER_CREDS_ID = 'simple-maven-app' 
     }
+    
     stages {
         stage('Checkout') {
             steps {
-                checkout scm 
+                // Pulls the latest code from your GitHub repo
+                checkout scm
             }
         }
+
         stage('Test') {
             steps {
-                sh 'mvn test' 
+                // Runs JUNIT tests; build fails if tests fail
+                sh 'mvn test'
             }
         }
-        stage('Build') {
+
+        stage('Build Artifact') {
             steps {
-                sh 'mvn clean package' 
+                // Compiles and packages the Java app into a JAR
+                sh 'mvn clean package -DskipTests'
             }
         }
+
         stage('Build Docker Image') {
             steps {
-                sh "docker build -t ${DOCKER_HUB_USER}/${IMAGE_NAME}:latest ."
-            }
-        }
-        stage('Push to Docker Hub') {
-            steps {
-                withCredentials([usernamePassword(credentialsId: "${DOCKER_CREDS}", 
-                passwordVariable: 'PASS', usernameVariable: 'USER')]) {
-                    sh "echo \$PASS | docker login -u \$USER --password-stdin"
-                    sh "docker push ${DOCKER_HUB_USER}/${IMAGE_NAME}:latest"
+                script {
+                    // Uses the build number as a tag for versioning
+                    dockerImage = docker.build("${DOCKER_HUB_USER}/${IMAGE_NAME}:${env.BUILD_NUMBER}")
                 }
             }
+        }
+
+        stage('Push to Docker Hub') {
+            steps {
+                script {
+                    // Securely handles login and push using Jenkins credentials
+                    docker.withRegistry('', DOCKER_CREDS_ID) {
+                        dockerImage.push("${env.BUILD_NUMBER}")
+                        dockerImage.push("latest")
+                    }
+                }
+            }
+        }
+    }
+
+    post {
+        always {
+            // Clean up local images to save disk space on the Jenkins server
+            sh "docker rmi ${DOCKER_HUB_USER}/${IMAGE_NAME}:${env.BUILD_NUMBER} || true"
+            sh "docker rmi ${DOCKER_HUB_USER}/${IMAGE_NAME}:latest || true"
+        }
+        success {
+            echo 'Pipeline completed successfully!'
+        }
+        failure {
+            echo 'Pipeline failed. Check the console output for errors.'
         }
     }
 }
