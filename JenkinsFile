@@ -1,7 +1,7 @@
 pipeline {
     agent any
     environment {
-        DOCKER_HUB_USER = 'mohanannadurai'
+        DOCKER_HUB_USER = 'Mohanannadurai'
         IMAGE_NAME = 'arithmetic-app'
         DOCKER_CREDS = 'simple-maven-app' 
     }
