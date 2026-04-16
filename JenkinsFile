@@ -1,9 +1,9 @@
 pipeline {
     agent any
     environment {
-        DOCKER_HUB_USER = 'your_dockerhub_username'
+        DOCKER_HUB_USER = 'mohanannadurai'
         IMAGE_NAME = 'arithmetic-app'
-        DOCKER_CREDS = 'DOCKER_HUB_ID' 
+        DOCKER_CREDS = 'simple-maven-app' 
     }
     stages {
         stage('Checkout') {
