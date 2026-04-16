@@ -3,7 +3,7 @@ pipeline {
     
     environment {
         // Change these to your actual values
-        DOCKER_HUB_USER = 'mohanannadurai' 
+        DOCKER_HUB_USER = 'Mohanannadurai' 
         IMAGE_NAME      = 'arithmetic-app'
         // This is the 'ID' you set when adding credentials in Jenkins
         DOCKER_CREDS_ID = 'mavenapp' 
