@@ -6,7 +6,7 @@ pipeline {
         DOCKER_HUB_USER = 'mohanannadurai' 
         IMAGE_NAME      = 'arithmetic-app'
         // This is the 'ID' you set when adding credentials in Jenkins
-        DOCKER_CREDS_ID = 'simple-maven-app' 
+        DOCKER_CREDS_ID = 'mavenapp' 
     }
     
     stages {
